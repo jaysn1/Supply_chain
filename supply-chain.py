@@ -3,6 +3,7 @@ from datetime import datetime, timedelta,date
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import arima_test as at
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -25,7 +26,7 @@ from sklearn.model_selection import KFold, cross_val_score, train_test_split
 pyoff.init_notebook_mode()
 
 #read the data in csv
-df_sales = pd.read_csv('sales_data1.csv')
+df_sales = pd.read_csv('sales_data2.csv')
 
 
 #convert date field from string to datetime
@@ -39,7 +40,8 @@ df_sales['date'] = pd.to_datetime(df_sales['date'])
 df_sales = df_sales.groupby('date').sales.sum().reset_index()
 
 preds = []
-predictions = int(input("How many months of predictions you want:"))
+#predictions = int(input("How many months of predictions you want:"))
+predictions = at.number
 last_date = df_sales[-1:]['date']
 dates = []
 for i in range(predictions):
@@ -112,9 +114,7 @@ for i in range(predictions):
     model.add(Dense(1))
     model.compile(loss='mean_squared_error', optimizer='adam')
     model.fit(X_train, y_train, nb_epoch=100, batch_size=1, verbose=1, shuffle=False)
-    print(X_test)
     y_pred = model.predict(X_test,batch_size=1)
-    print(y_pred)
     #for multistep prediction, you need to replace X_test values with the predictions coming from t-1
     
     #reshape y_pred
@@ -142,24 +142,28 @@ for i in range(predictions):
     preds.append(df_sales['sales'][-1:])
     
 #plot actual and predicted
-plot_data = [
-    go.Scatter(
-        x=df_sales['date'][:-1*predictions],
-        y=df_sales['sales'][:-1*predictions],
-        name='actual'
-    ),
-        go.Scatter(
-        x=df_sales['date'][(-1*predictions)-1:],
-        y=df_sales['sales'][(-1*predictions)-1:],
-        name='predicted'
-    )
-    
-]
-plot_layout = go.Layout(
-        title='Sales Prediction'
-    )
-fig = go.Figure(data=plot_data, layout=plot_layout)
-pyoff.plot(fig)
-#plt.plot(df_sales['date'][:-1*predictions],df_sales['sales'][:-1*predictions])
-#plt.plot(df_sales['date'][(-1*predictions)-1:], df_sales['sales'][(-1*predictions)-1:])
-#plt.show()
+#plot_data = [
+#    go.Scatter(
+#        x=df_sales['date'][:-1*predictions],
+#        y=df_sales['sales'][:-1*predictions],
+#        name='actual'
+#    ),
+#        go.Scatter(
+#        x=df_sales['date'][(-1*predictions)-1:],
+#        y=df_sales['sales'][(-1*predictions)-1:],
+#        name='predicted'
+#    )
+#    
+#]
+#plot_layout = go.Layout(
+#        title='Sales Prediction'
+#    )
+#fig = go.Figure(data=plot_data, layout=plot_layout)
+#pyoff.plot(fig)
+arima_preds = at.predictions
+final_preds = []
+for i in range(predictions):
+    final_preds.append((arima_preds[i] + preds[i].values)/2)
+plt.plot(df_sales['date'][:-1*predictions],df_sales['sales'][:-1*predictions])
+plt.plot(df_sales['date'][(-1*predictions):], final_preds)
+plt.show()
