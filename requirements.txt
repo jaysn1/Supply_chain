@@ -110,7 +110,7 @@ spyder==3.3.6
 spyder-kernels==0.5.2
 statsmodels==0.11.1
 tensorboard==2.1.0
-tensorflow==2.1.0
+tensorflow==2.9.3
 tensorflow-estimator==2.1.0
 termcolor==1.1.0
 testpath==0.4.4
